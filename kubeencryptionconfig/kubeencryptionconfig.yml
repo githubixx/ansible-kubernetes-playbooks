@@ -1,0 +1,12 @@
+---
+- hosts: k8s_kubectl
+
+  tasks:
+    - name: Create encryption config file
+      template:
+        src: "templates/encryption-config.yaml.j2"
+        dest: "{{k8s_encryption_config_directory}}/encryption-config.yaml"
+        mode: 0600
+      tags:
+        - Create encryption config file
+

@@ -1,0 +1,43 @@
+---
+
+- hosts: k8s_kubectl
+
+  tasks:
+    - name: kubectl config set-cluster
+      shell: |
+        kubectl config set-cluster {{k8s_config_cluster_name}} \
+          --certificate-authority={{k8s_ca_conf_directory}}/ca-k8s-apiserver.pem \
+          --embed-certs=true \
+          --server=https://{{hostvars[groups.k8s_controller|first]['ansible_' + k8s_interface].ipv4.address}}:6443
+      register: set_cluster
+
+    - debug:
+        msg: "COMMAND:{{set_cluster.cmd}} | OUTPUT: {{set_cluster.stdout}}"
+
+    - name: kubectl config set-credentials admin
+      shell: |
+        kubectl config set-credentials admin \
+          --client-certificate={{k8s_ca_conf_directory}}/cert-admin.pem \
+          --client-key={{k8s_ca_conf_directory}}/cert-admin-key.pem
+      register: set_credentials
+
+    - debug:
+        msg: "COMMAND:{{set_credentials.cmd}} | OUTPUT: {{set_credentials.stdout}}"
+
+    - name: kubectl config set-context
+      shell: |
+        kubectl config set-context {{k8s_config_cluster_name}} \
+          --cluster={{k8s_config_cluster_name}} \
+          --user=admin
+      register: set_context
+
+    - debug:
+        msg: "COMMAND:{{set_context.cmd}} | OUTPUT: {{set_context.stdout}}"
+
+    - name: kubectl config use-context
+      shell: |
+        kubectl config use-context {{k8s_config_cluster_name}}
+      register: use_context
+
+    - debug:
+        msg: "COMMAND:{{use_context.cmd}} | OUTPUT: {{use_context.stdout}}"
