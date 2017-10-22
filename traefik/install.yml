@@ -1,0 +1,124 @@
+---
+- hosts: k8s_kubectl
+
+  tasks:
+    - debug: var="hostvars[groups.k8s_controller|first]['ansible_' + k8s_interface].ipv4.address"
+          #- debug: var="hostvars[groups['k8s_controller'][0]]['ansible_' + peervpn_conf_interface].ipv4.address"
+      #var: "hostvars[inventory_hostname]['ansible_' + peervpn_conf_interface].ipv4.address"
+            #msg: "{{hostvars[inventory_hostname]['ansible_' + peervpn_conf_interface].ipv4.address}}"
+
+    - name: Check if Traefik's ClusterRole is already deployed
+      shell: "kubectl get clusterrole traefik-ingress-controller"
+      register: kubectl
+      failed_when: "not (('not found' in kubectl.stderr) or ('' in kubectl.stdout))"
+      tags:
+        - traefik-clusterrole
+
+    - name: Create temporary deployment file for Traefik ClusterRole
+      copy:
+        content: "{{traefik_clusterrole}}"
+        dest: "/tmp/traefik_clusterrole.yaml"
+        mode: 0600
+      when: kubectl.rc == 1
+      tags:
+        - traefik-clusterrole
+
+    - name: Deploy Traefik ClusterRole
+      command: "kubectl create -f /tmp/traefik_clusterrole.yaml"
+      when: kubectl.rc == 1
+      tags:
+        - traefik-clusterrole
+    
+    - name: Remove temporary Traefik ClusterRole deployment file
+      file:
+        path: "/tmp/traefik_clusterrole.yaml"
+        state: absent
+      tags:
+        - traefik-clusterrole
+
+    - name: Check if Traefik's ClusterRoleBinding is already deployed
+      shell: "kubectl get clusterrolebinding traefik-ingress-controller"
+      register: kubectl
+      failed_when: "not (('not found' in kubectl.stderr) or ('' in kubectl.stdout))"
+      tags:
+        - traefik-clusterrolebinding
+
+    - name: Create temporary deployment file for Traefik ClusterRoleBinding
+      copy:
+        content: "{{traefik_clusterrolebinding}}"
+        dest: "/tmp/traefik_clusterrolebinding.yaml"
+        mode: 0600
+      when: kubectl.rc == 1
+      tags:
+        - traefik-clusterrolebinding
+
+    - name: Deploy Traefik ClusterRoleBinding
+      command: "kubectl create -f /tmp/traefik_clusterrolebinding.yaml"
+      when: kubectl.rc == 1
+      tags:
+        - traefik-clusterrolebinding
+
+    - name: Remove temporary Traefik ClusterRoleBinding deployment file
+      file:
+        path: "/tmp/traefik_clusterrolebinding.yaml"
+        state: absent
+      tags:
+        - traefik-clusterrolebinding
+
+    - name: Check if Traefik's ServiceAccount is already deployed
+      shell: "kubectl get serviceaccount --namespace=kube-system traefik-ingress-controller"
+      register: kubectl
+      failed_when: "not (('not found' in kubectl.stderr) or ('' in kubectl.stdout))"
+      tags:
+        - traefik-serviceaccount
+
+    - name: Create temporary deployment file for Traefik ServiceAccount
+      copy:
+        content: "{{traefik_serviceaccount}}"
+        dest: "/tmp/traefik_serviceaccount.yaml"
+        mode: 0600
+      when: kubectl.rc == 1
+      tags:
+        - traefik-serviceaccount
+
+    - name: Deploy Traefik ServiceAccount
+      command: "kubectl create -f /tmp/traefik_serviceaccount.yaml"
+      when: kubectl.rc == 1
+      tags:
+        - traefik-serviceaccount
+
+    - name: Remove temporary Traefik ServiceAccount deployment file
+      file:
+        path: "/tmp/traefik_serviceaccount.yaml"
+        state: absent
+      tags:
+        - traefik-serviceaccount
+
+    - name: Check if Traefik's DaemonSet is already deployed
+      shell: "kubectl get daemonset --namespace=kube-system traefik-ingress-controller"
+      register: kubectl
+      failed_when: "not (('not found' in kubectl.stderr) or ('' in kubectl.stdout))"
+      tags:
+        - traefik-daemonset
+
+    - name: Create temporary deployment file for Traefik DaemonSet
+      copy:
+        content: "{{traefik_daemonset}}"
+        dest: "/tmp/traefik_daemonset.yaml"
+        mode: 0600
+      when: kubectl.rc == 1
+      tags:
+        - traefik-daemonset
+
+    - name: Deploy Traefik DaemonSet
+      command: "kubectl create -f /tmp/traefik_daemonset.yaml"
+      when: kubectl.rc == 1
+      tags:
+        - traefik-daemonset
+
+    - name: Remove temporary Traefik DaemonSet deployment file
+      file:
+        path: "/tmp/traefik_daemonset.yaml"
+        state: absent
+      tags:
+        - traefik-daemonset
