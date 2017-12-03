@@ -2,6 +2,19 @@
 - hosts: k8s_kubectl
 
   tasks:
+    - name: Check if secret is already deployed
+      shell: "kubectl get secret --namespace=kube-system consul"
+      register: kubectl
+      failed_when: "not (('not found' in kubectl.stderr) or ('' in kubectl.stdout))"
+      tags:
+        - traefik-secret
+
+    - name: Deploy secret (if needed)
+      command: "kubectl create secret generic consul --from-file={{consul_ca_conf_directory}}/ca-consul.pem --from-file={{consul_ca_conf_directory}}/cert-consul.pem --from-file={{consul_ca_conf_directory}}/cert-consul-key.pem --namespace=kube-system"
+      when: kubectl.rc == 1
+      tags:
+        - traefik-secret
+
     - name: Create temporary deployment file for Traefik ClusterRole
       copy:
         content: "{{traefik_clusterrole}}"
