@@ -22,7 +22,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     kubernetes.io/name: "KubeDNS"
 spec:
-  clusterIP: {{k8s_cluster_dns}}
+  clusterIP: 10.32.0.254
   ports:
     - name: dns
       port: 53
@@ -70,7 +70,7 @@ spec:
             - name: PROMETHEUS_PORT
               value: "10055"
           args:
-            - --domain={{k8s_cluster_domain}}
+            - --domain=cluster.local
             - --dns-port=10053
             - --config-dir=/kube-dns-config
             - --v=2
