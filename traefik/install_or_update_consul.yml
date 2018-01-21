@@ -1,0 +1,96 @@
+---
+- hosts: k8s_kubectl
+
+  tasks:
+    - name: Check if secret is already deployed
+      shell: "kubectl get secret --namespace=kube-system traefik-consul"
+      register: kubectl
+      failed_when: "not (('not found' in kubectl.stderr) or ('' in kubectl.stdout))"
+      tags:
+        - traefik-secret
+
+    - name: Deploy secret (if needed)
+      command: "kubectl create secret generic traefik-consul --from-file={{consul_ca_conf_directory}}/ca-consul.pem --from-file={{consul_ca_conf_directory}}/cert-consul.pem --from-file={{consul_ca_conf_directory}}/cert-consul-key.pem --namespace=kube-system"
+      when: kubectl.rc == 1
+      tags:
+        - traefik-secret
+
+    - name: Create temporary deployment file for Traefik ClusterRole
+      copy:
+        content: "{{traefik_clusterrole}}"
+        dest: "/tmp/traefik_clusterrole.yaml"
+        mode: 0600
+      tags:
+        - traefik-clusterrole
+
+    - name: Deploy Traefik ClusterRole
+      command: "kubectl apply -f /tmp/traefik_clusterrole.yaml"
+      tags:
+        - traefik-clusterrole
+    
+    - name: Remove temporary Traefik ClusterRole deployment file
+      file:
+        path: "/tmp/traefik_clusterrole.yaml"
+        state: absent
+      tags:
+        - traefik-clusterrole
+
+    - name: Create temporary deployment file for Traefik ClusterRoleBinding
+      copy:
+        content: "{{traefik_clusterrolebinding}}"
+        dest: "/tmp/traefik_clusterrolebinding.yaml"
+        mode: 0600
+      tags:
+        - traefik-clusterrolebinding
+
+    - name: Deploy Traefik ClusterRoleBinding
+      command: "kubectl apply -f /tmp/traefik_clusterrolebinding.yaml"
+      tags:
+        - traefik-clusterrolebinding
+
+    - name: Remove temporary Traefik ClusterRoleBinding deployment file
+      file:
+        path: "/tmp/traefik_clusterrolebinding.yaml"
+        state: absent
+      tags:
+        - traefik-clusterrolebinding
+
+    - name: Create temporary deployment file for Traefik ServiceAccount
+      copy:
+        content: "{{traefik_serviceaccount}}"
+        dest: "/tmp/traefik_serviceaccount.yaml"
+        mode: 0600
+      tags:
+        - traefik-serviceaccount
+
+    - name: Deploy Traefik ServiceAccount
+      command: "kubectl apply -f /tmp/traefik_serviceaccount.yaml"
+      tags:
+        - traefik-serviceaccount
+
+    - name: Remove temporary Traefik ServiceAccount deployment file
+      file:
+        path: "/tmp/traefik_serviceaccount.yaml"
+        state: absent
+      tags:
+        - traefik-serviceaccount
+
+    - name: Create temporary deployment file for Traefik DaemonSet
+      copy:
+        content: "{{traefik_daemonset}}"
+        dest: "/tmp/traefik_daemonset.yaml"
+        mode: 0600
+      tags:
+        - traefik-daemonset
+
+    - name: Deploy Traefik DaemonSet
+      command: "kubectl apply -f /tmp/traefik_daemonset.yaml"
+      tags:
+        - traefik-daemonset
+
+    - name: Remove temporary Traefik DaemonSet deployment file
+      file:
+        path: "/tmp/traefik_daemonset.yaml"
+        state: absent
+      tags:
+        - traefik-daemonset

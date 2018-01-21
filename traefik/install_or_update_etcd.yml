@@ -2,15 +2,47 @@
 - hosts: k8s_kubectl
 
   tasks:
+    - name: Check if etcd contains /traefik/acme/account/lock key
+      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} get /traefik/acme/account/lock"
+      register: lock_configured
+      run_once: true
+      delegate_to: "{{groups.k8s_etcd|first}}"
+      tags:
+        - traefik-etcd-key
+    
+    - name: Create etcd key /traefik/acme/account/lock (if needed)
+      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} put /traefik/acme/account/lock ''"
+      when: lock_configured.stdout == ""
+      run_once: true
+      delegate_to: "{{groups.k8s_etcd|first}}"
+      tags:
+        - traefik-etcd-key
+
+    - name: Check if etcd contains /traefik/acme/account/object key
+      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} get /traefik/acme/account/object"
+      register: object_configured
+      run_once: true
+      delegate_to: "{{groups.k8s_etcd|first}}"
+      tags:
+        - traefik-etcd-key
+
+    - name: Create etcd key /traefik/acme/account/object (if needed)
+      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} put /traefik/acme/account/object ''"
+      when: object_configured.stdout == ""
+      run_once: true
+      delegate_to: "{{groups.k8s_etcd|first}}"
+      tags:
+        - traefik-etcd-key
+
     - name: Check if secret is already deployed
-      shell: "kubectl get secret --namespace=kube-system consul"
+      shell: "kubectl get secret --namespace=kube-system traefik-etcd"
       register: kubectl
       failed_when: "not (('not found' in kubectl.stderr) or ('' in kubectl.stdout))"
       tags:
         - traefik-secret
 
     - name: Deploy secret (if needed)
-      command: "kubectl create secret generic consul --from-file={{consul_ca_conf_directory}}/ca-consul.pem --from-file={{consul_ca_conf_directory}}/cert-consul.pem --from-file={{consul_ca_conf_directory}}/cert-consul-key.pem --namespace=kube-system"
+      command: "kubectl create secret generic traefik-etcd --from-file={{k8s_ca_conf_directory}}/ca-etcd.pem --from-file={{k8s_ca_conf_directory}}/cert-etcd.pem --from-file={{k8s_ca_conf_directory}}/cert-etcd-key.pem --namespace=kube-system"
       when: kubectl.rc == 1
       tags:
         - traefik-secret
