@@ -33,7 +33,5 @@
 
     - name: Set use-context
       shell: "kubectl config use-context default --kubeconfig={{k8s_config_directory}}/kube-proxy.kubeconfig"
-      with_inventory_hostnames:
-        - k8s_worker
       tags:
         - k8s-auth-config-proxy
