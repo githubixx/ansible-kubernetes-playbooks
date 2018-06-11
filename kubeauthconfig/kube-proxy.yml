@@ -22,7 +22,7 @@
         - k8s-auth-config-proxy
 
     - name: Generate a kubeconfig file for the kube-proxy service (set-credentials)
-      shell: "kubectl config set-credentials kube-proxy --client-certificate={{k8s_ca_conf_directory}}/cert-kube-proxy.pem --client-key={{k8s_ca_conf_directory}}/cert-kube-proxy-key.pem --embed-certs=true --kubeconfig={{k8s_config_directory}}/kube-proxy.kubeconfig"
+      shell: "kubectl config set-credentials kube-proxy --client-certificate={{k8s_ca_conf_directory}}/cert-k8s-proxy.pem --client-key={{k8s_ca_conf_directory}}/cert-k8s-proxy-key.pem --embed-certs=true --kubeconfig={{k8s_config_directory}}/kube-proxy.kubeconfig"
       tags:
         - k8s-auth-config-proxy
 
