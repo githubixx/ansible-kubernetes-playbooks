@@ -22,7 +22,7 @@
         - k8s-auth-config-scheduler
 
     - name: Generate a kubeconfig file for the kube-scheduler service (set-credentials)
-      shell: "kubectl config set-credentials system:kube-scheduler --client-certificate={{k8s_ca_conf_directory}}/cert-kube-scheduler.pem --client-key={{k8s_ca_conf_directory}}/cert-kube-scheduler-key.pem --embed-certs=true --kubeconfig={{k8s_config_directory}}/kube-scheduler.kubeconfig"
+      shell: "kubectl config set-credentials system:kube-scheduler --client-certificate={{k8s_ca_conf_directory}}/cert-k8s-scheduler.pem --client-key={{k8s_ca_conf_directory}}/cert-k8s-scheduler-key.pem --embed-certs=true --kubeconfig={{k8s_config_directory}}/kube-scheduler.kubeconfig"
       tags:
         - k8s-auth-config-scheduler
 
