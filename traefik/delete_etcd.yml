@@ -28,7 +28,12 @@
         - traefik-serviceaccount
 
     - name: Delete etcd /traefik/acme/account/lock key
-      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} del /traefik/acme/account/lock"
+      shell: |
+        ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl del /traefik/acme/account/lock \
+          --endpoints=https://127.0.0.1:{{etcd_client_port}} \
+          --cacert={{k8s_conf_dir}}/ca-etcd.pem \
+          --cert={{k8s_conf_dir}}/cert-etcd.pem \
+          --key={{k8s_conf_dir}}/cert-etcd-key.pem
       when: delete_keys is defined and delete_keys == "true"
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
@@ -36,7 +41,12 @@
         - traefik-etcd-key
 
     - name: Delete etcd /traefik/acme/account/object key
-      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} del /traefik/acme/account/object"
+      shell: |
+        ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl del /traefik/acme/account/object \
+          --endpoints=https://127.0.0.1:{{etcd_client_port}} \
+          --cacert={{k8s_conf_dir}}/ca-etcd.pem \
+          --cert={{k8s_conf_dir}}/cert-etcd.pem \
+          --key={{k8s_conf_dir}}/cert-etcd-key.pem
       when: delete_keys is defined and delete_keys == "true"
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"

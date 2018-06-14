@@ -3,7 +3,12 @@
 
   tasks:
     - name: Check if etcd contains /traefik/acme/account/lock key
-      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} get /traefik/acme/account/lock"
+      shell: |
+        ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl get /traefik/acme/account/lock \
+          --endpoints=https://127.0.0.1:{{etcd_client_port}} \
+          --cacert={{k8s_conf_dir}}/ca-etcd.pem \
+          --cert={{k8s_conf_dir}}/cert-etcd.pem \
+          --key={{k8s_conf_dir}}/cert-etcd-key.pem
       register: lock_configured
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
@@ -11,7 +16,12 @@
         - traefik-etcd-key
     
     - name: Create etcd key /traefik/acme/account/lock (if needed)
-      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} put /traefik/acme/account/lock ''"
+      shell: |
+        ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl put /traefik/acme/account/lock '' \
+          --endpoints=https://127.0.0.1:{{etcd_client_port}} \
+          --cacert={{k8s_conf_dir}}/ca-etcd.pem \
+          --cert={{k8s_conf_dir}}/cert-etcd.pem \
+          --key={{k8s_conf_dir}}/cert-etcd-key.pem
       when: lock_configured.stdout == ""
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
@@ -19,7 +29,12 @@
         - traefik-etcd-key
 
     - name: Check if etcd contains /traefik/acme/account/object key
-      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} get /traefik/acme/account/object"
+      shell: |
+        ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl get /traefik/acme/account/object \
+          --endpoints=https://127.0.0.1:{{etcd_client_port}} \
+          --cacert={{k8s_conf_dir}}/ca-etcd.pem \
+          --cert={{k8s_conf_dir}}/cert-etcd.pem \
+          --key={{k8s_conf_dir}}/cert-etcd-key.pem
       register: object_configured
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
@@ -27,7 +42,12 @@
         - traefik-etcd-key
 
     - name: Create etcd key /traefik/acme/account/object (if needed)
-      shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl --endpoints=http://localhost:{{etcd_client_port}} put /traefik/acme/account/object ''"
+      shell: |
+        ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl put /traefik/acme/account/object '' \
+          --endpoints=https://127.0.0.1:{{etcd_client_port}} \
+          --cacert={{k8s_conf_dir}}/ca-etcd.pem \
+          --cert={{k8s_conf_dir}}/cert-etcd.pem \
+          --key={{k8s_conf_dir}}/cert-etcd-key.pem
       when: object_configured.stdout == ""
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
