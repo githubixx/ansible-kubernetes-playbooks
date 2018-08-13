@@ -6,7 +6,7 @@
       set_fact:
         apiServer: |
           {% set item = groups["k8s_controller"][0] %}
-          {{ hostvars[item]["ansible_"+hostvars[item]["peervpn_conf_interface"]].ipv4.address }}
+          {{ hostvars[item]["ansible_"+hostvars[item]["k8s_interface"]].ipv4.address }}
       tags:
         - kubernetes-ca
 
