@@ -5,13 +5,34 @@ This playbook is used in my blog post [Kubernetes the not so hard way with Ansib
 
 This role uses the Ansible's [k8s](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html) module. That means you need at least Ansible v2.6 as it was added with this version (the module was formerly known as `openshift_raw` or `k8s_raw` ;-) ). This modules uses the OpenShift Python client to perform CRUD operations on Kubernetes objects. That means you need to install `openshift` pip e.g.: `pip3 install openshift` (also see [requirements](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html#requirements).
 
-To install all parts needed for CoreDNS into Kubernetes `kube-system` namespace run:
+Before you install and use CoreDNS for your Kubernetes cluster you may find this links useful:
+[CoreDNS GA for Kubernetes Cluster DNS](https://kubernetes.io/blog/2018/07/10/coredns-ga-for-kubernetes-cluster-dns/)
+[Customizing DNS Service](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/)
+[Migration from kube-dns to CoreDNS](https://coredns.io/2018/05/21/migration-from-kube-dns-to-coredns/)
+[deploy.sh and coredns.yaml.sed](https://github.com/coredns/deployment/tree/master/kubernetes) This guide helps you converting from kube-dns to CoreDNS. It includes a script to generate a manifest for running CoreDNS on a cluster that is currently running standard kube-dns.
+[CoreDNS website](https://coredns.io/)
+
+The `ConfigMap` (`templates/configmap.yml.j2`) used in this playbook contains the CoreDNS configuration file the so called `Corefile`. If you use `cluster.local` as your internal Kubernetes domain then propability is high that you can use the `Corefile` as is. Domain names that can't be resolved by CoreDNS locally are upstreamed to `1.1.1.1` ([1.1.1.1](https://1.1.1.1/) provided by Cloudflare and APNIC) and `9.9.9.9` ([Quad9](https://quad9.net/), a alternative to Googles 8.8.8.8 provided by Packet Clearing House (PCH), Global Cyber Alliance (GCA), IBM and other partners). If you want even more DNS privacy you can use `templates/configmap_quad9_dot.yml.j2`. This uses ([Quad9](https://quad9.net/) DNS-over-TLS.
+
+The following CoreDNS plugins are used:
+[kubernetes](https://coredns.io/plugins/kubernetes/)
+[loop](https://coredns.io/plugins/loop/)
+[errors](https://coredns.io/plugins/errors/)
+[health](https://coredns.io/plugins/health/)
+[prometheus](https://coredns.io/plugins/metrics/)
+[proxy](https://coredns.io/plugins/proxy/)
+[cache](https://coredns.io/plugins/cache/)
+[reload](https://coredns.io/plugins/reload/)
+[loadbalance](https://coredns.io/plugins/loadbalance/)
+
+
+To install all parts needed for CoreDNS into Kubernetes `kube-system` namespace run (for further options read on):
 
 ```
 ansible-playbook coredns.yml
 ```
 
-The [k8s](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html) module reads the Kubernetes authorization information from `${HOME}/.kube/config` by default. If you've the variables `ansible_become_user: root` or `ansible_become: true` defined then `${HOME}` will become `/root` and the probability that the [k8s](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html) module will find the Kubernetes authorization information at `/root/.kube/config` isn't that high ;-) So you may need to specify the correct user like in this example (of course replace `<username>` with the correct username):
+The Ansible [k8s](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html) module reads the Kubernetes authorization information from `${HOME}/.kube/config` by default. If you've the variables `ansible_become_user: root` and/or `ansible_become: true` defined then `${HOME}` will become `/root` during execution of the playbook and the probability that the [k8s](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html) module will find the Kubernetes authorization information at `/root/.kube/config` isn't that high ;-) So you may need to specify the correct user like in this example (of course replace `<username>` with the correct username):
 
 ```
 ansible-playbook --become-user=<username> coredns.yml
