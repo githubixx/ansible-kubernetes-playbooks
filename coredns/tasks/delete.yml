@@ -1,0 +1,48 @@
+---
+- name: Create coredns service account
+  local_action:
+    module: k8s
+    state: absent
+    definition: "{{ lookup('template', 'templates/serviceaccount.yml.j2') | from_yaml }}"
+  tags:
+    - delete-serviceaccount
+
+- name: Create coredns ClusterRole
+  local_action:
+    module: k8s
+    state: absent
+    definition: "{{ lookup('template', 'templates/clusterrole.yml.j2') | from_yaml }}"
+  tags:
+    - delete-clusterrole
+
+- name: Create coredns ClusterRoleBinding
+  local_action:
+    module: k8s
+    state: absent
+    definition: "{{ lookup('template', 'templates/clusterrolebinding.yml.j2') | from_yaml }}"
+  tags:
+    - delete-clusterrolebinding
+
+- name: Create coredns ConfigMap
+  local_action:
+    module: k8s
+    state: absent
+    definition: "{{ lookup('template', 'templates/configmap.yml.j2') | from_yaml }}"
+  tags:
+    - delete-configmap
+
+- name: Create coredns Deployment
+  local_action:
+    module: k8s
+    state: absent
+    definition: "{{ lookup('template', 'templates/deployment.yml.j2') | from_yaml }}"
+  tags:
+    - delete-deployment
+
+- name: Create coredns Service
+  local_action:
+    module: k8s
+    state: absent
+    definition: "{{ lookup('template', 'templates/service.yml.j2') | from_yaml }}"
+  tags:
+    - delete-service
