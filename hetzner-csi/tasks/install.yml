@@ -1,0 +1,56 @@
+---
+- name: Create hcloud-csi secret
+  local_action:
+    module: k8s
+    state: present
+    definition: "{{ lookup('template', 'templates/secret.yml.j2') | from_yaml }}"
+  tags:
+    - install-secret
+
+- name: Install StorageClass
+  local_action:
+    module: k8s
+    state: present
+    definition: "{{ lookup('template', 'templates/storageclass.yml.j2') | from_yaml }}"
+  tags:
+    - install-storageclass
+
+- name: Install ServiceAccount
+  local_action:
+    module: k8s
+    state: present
+    definition: "{{ lookup('template', 'templates/serviceaccount.yml.j2') | from_yaml }}"
+  tags:
+    - install-serviceaccount
+
+- name: Install ClusterRole
+  local_action:
+    module: k8s
+    state: present
+    definition: "{{ lookup('template', 'templates/clusterrole.yml.j2') | from_yaml }}"
+  tags:
+    - install-clusterrole
+
+- name: Install ClusterRoleBinding
+  local_action:
+    module: k8s
+    state: present
+    definition: "{{ lookup('template', 'templates/clusterrolebinding.yml.j2') | from_yaml }}"
+  tags:
+    - install-clusterrolebinding
+
+- name: Install StatefulSet
+  local_action:
+    module: k8s
+    state: present
+    definition: "{{ lookup('template', 'templates/statefulset.yml.j2') | from_yaml }}"
+  tags:
+    - install-statefulset
+
+- name: Install DaemonSet
+  local_action:
+    module: k8s
+    state: present
+    definition: "{{ lookup('template', 'templates/daemonset.yml.j2') | from_yaml }}"
+  tags:
+    - install-daemonset

@@ -1,0 +1,77 @@
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: hcloud-csi-node
+  namespace: kube-system
+  labels:
+    app: hcloud-csi
+spec:
+  selector:
+    matchLabels:
+      app: hcloud-csi
+  template:
+    metadata:
+      labels:
+        app: hcloud-csi
+    spec:
+      serviceAccount: hcloud-csi
+      hostNetwork: true
+      containers:
+        - name: csi-node-driver-registrar
+          image: quay.io/k8scsi/csi-node-driver-registrar:v1.0.1
+          args:
+            - --v=5
+            - --csi-address=/csi/csi.sock
+            - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.hetzner.cloud/csi.sock
+          env:
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: registration-dir
+              mountPath: /registration
+          securityContext:
+            privileged: true
+        - name: hcloud-csi-driver
+          image: hetznercloud/hcloud-csi-driver:1.1.4
+          imagePullPolicy: Always
+          env:
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi.sock
+            - name: HCLOUD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hcloud-csi
+                  key: token
+          volumeMounts:
+            - name: kubelet-dir
+              mountPath: /var/lib/kubelet
+              mountPropagation: "Bidirectional"
+            - name: plugin-dir
+              mountPath: /csi
+            - name: device-dir
+              mountPath: /dev
+          securityContext:
+            privileged: true
+      volumes:
+        - name: kubelet-dir
+          hostPath:
+            path: /var/lib/kubelet
+            type: Directory
+        - name: plugin-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/csi.hetzner.cloud/
+            type: DirectoryOrCreate
+        - name: registration-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins_registry/
+            type: Directory
+        - name: device-dir
+          hostPath:
+            path: /dev
+            type: Directory

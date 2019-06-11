@@ -1,0 +1,20 @@
+---
+- name: Install Hetzner CSI driver
+  hosts: k8s_kubectl
+  tasks:
+    - name: Set default action
+      set_fact:
+        deploy_action: "install"
+      tags:
+        - always
+
+    - name: Set default action
+      set_fact:
+        deploy_action: "delete"
+      when: delete is defined
+      tags:
+        - always
+
+    - include_tasks: "tasks/{{deploy_action|lower}}.yml"
+      tags:
+        - always
