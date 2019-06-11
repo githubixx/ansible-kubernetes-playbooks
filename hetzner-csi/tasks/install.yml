@@ -1,56 +1,56 @@
 ---
 - name: Create hcloud-csi secret
-  local_action:
-    module: k8s
+  k8s:
     state: present
     definition: "{{ lookup('template', 'templates/secret.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - install-secret
 
 - name: Install StorageClass
-  local_action:
-    module: k8s
+  k8s:
     state: present
     definition: "{{ lookup('template', 'templates/storageclass.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - install-storageclass
 
 - name: Install ServiceAccount
-  local_action:
-    module: k8s
+  k8s:
     state: present
     definition: "{{ lookup('template', 'templates/serviceaccount.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - install-serviceaccount
 
 - name: Install ClusterRole
-  local_action:
-    module: k8s
+  k8s:
     state: present
     definition: "{{ lookup('template', 'templates/clusterrole.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - install-clusterrole
 
 - name: Install ClusterRoleBinding
-  local_action:
-    module: k8s
+  k8s:
     state: present
     definition: "{{ lookup('template', 'templates/clusterrolebinding.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - install-clusterrolebinding
 
 - name: Install StatefulSet
-  local_action:
-    module: k8s
+  k8s:
     state: present
     definition: "{{ lookup('template', 'templates/statefulset.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - install-statefulset
 
 - name: Install DaemonSet
-  local_action:
-    module: k8s
+  k8s:
     state: present
     definition: "{{ lookup('template', 'templates/daemonset.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - install-daemonset

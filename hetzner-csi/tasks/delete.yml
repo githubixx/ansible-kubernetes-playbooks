@@ -1,56 +1,56 @@
 ---
 - name: Delete DaemonSet
-  local_action:
-    module: k8s
+  k8s:
     state: absent
     definition: "{{ lookup('template', 'templates/daemonset.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - delete-daemonset
 
 - name: Delete StatefulSet
-  local_action:
-    module: k8s
+  k8s:
     state: absent
     definition: "{{ lookup('template', 'templates/statefulset.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - delete-statefulset
 
 - name: Delete ClusterRoleBinding
-  local_action:
-    module: k8s
+  k8s:
     state: absent
     definition: "{{ lookup('template', 'templates/clusterrolebinding.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - delete-clusterrolebinding
 
 - name: Delete ClusterRole
-  local_action:
-    module: k8s
+  k8s:
     state: absent
     definition: "{{ lookup('template', 'templates/clusterrole.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - delete-clusterrole
 
 - name: Delete ServiceAccount
-  local_action:
-    module: k8s
+  k8s:
     state: absent
     definition: "{{ lookup('template', 'templates/serviceaccount.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - delete-serviceaccount
 
 - name: Delete StorageClass
-  local_action:
-    module: k8s
+  k8s:
     state: absent
     definition: "{{ lookup('template', 'templates/storageclass.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - delete-storageclass
 
 - name: Delete hcloud-csi secret
-  local_action:
-    module: k8s
+  k8s:
     state: absent
     definition: "{{ lookup('template', 'templates/secret.yml.j2') | from_yaml }}"
+  delegate_to: localhost
   tags:
     - delete-secret
