@@ -1,5 +1,5 @@
 ---
-- name: Create coredns service account
+- name: Delete coredns service account
   local_action:
     module: k8s
     state: absent
@@ -7,7 +7,7 @@
   tags:
     - delete-serviceaccount
 
-- name: Create coredns ClusterRole
+- name: Delete coredns ClusterRole
   local_action:
     module: k8s
     state: absent
@@ -15,7 +15,7 @@
   tags:
     - delete-clusterrole
 
-- name: Create coredns ClusterRoleBinding
+- name: Delete coredns ClusterRoleBinding
   local_action:
     module: k8s
     state: absent
@@ -23,7 +23,7 @@
   tags:
     - delete-clusterrolebinding
 
-- name: Create coredns ConfigMap
+- name: Delete coredns ConfigMap
   local_action:
     module: k8s
     state: absent
@@ -31,7 +31,7 @@
   tags:
     - delete-configmap
 
-- name: Create coredns Deployment
+- name: Delete coredns Deployment
   local_action:
     module: k8s
     state: absent
@@ -39,7 +39,7 @@
   tags:
     - delete-deployment
 
-- name: Create coredns Service
+- name: Delete coredns Service
   local_action:
     module: k8s
     state: absent
