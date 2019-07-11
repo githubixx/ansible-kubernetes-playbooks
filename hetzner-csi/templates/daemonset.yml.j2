@@ -2,20 +2,20 @@
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
-  name: hcloud-csi-node
-  namespace: kube-system
+  name: {{ hcloud_resource_prefix }}-csi-node
+  namespace: {{ hcloud_namespace }}
   labels:
-    app: hcloud-csi
+    app: {{ hcloud_resource_prefix }}-csi
 spec:
   selector:
     matchLabels:
-      app: hcloud-csi
+      app: {{ hcloud_resource_prefix }}-csi
   template:
     metadata:
       labels:
-        app: hcloud-csi
+        app: {{ hcloud_resource_prefix }}-csi
     spec:
-      serviceAccount: hcloud-csi
+      serviceAccount: {{ hcloud_resource_prefix }}-csi
       hostNetwork: true
       containers:
         - name: csi-node-driver-registrar
@@ -23,7 +23,7 @@ spec:
           args:
             - --v=5
             - --csi-address=/csi/csi.sock
-            - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.hetzner.cloud/csi.sock
+            - --kubelet-registration-path={{ k8s_worker_kubelet_conf_dir }}/plugins/csi.hetzner.cloud/csi.sock
           env:
             - name: KUBE_NODE_NAME
               valueFrom:
@@ -50,7 +50,7 @@ spec:
                   key: token
           volumeMounts:
             - name: kubelet-dir
-              mountPath: /var/lib/kubelet
+              mountPath: {{ k8s_worker_kubelet_conf_dir }}
               mountPropagation: "Bidirectional"
             - name: plugin-dir
               mountPath: /csi
@@ -61,15 +61,15 @@ spec:
       volumes:
         - name: kubelet-dir
           hostPath:
-            path: /var/lib/kubelet
+            path: {{ k8s_worker_kubelet_conf_dir }}
             type: Directory
         - name: plugin-dir
           hostPath:
-            path: /var/lib/kubelet/plugins/csi.hetzner.cloud/
+            path: {{ k8s_worker_kubelet_conf_dir }}/plugins/csi.hetzner.cloud/
             type: DirectoryOrCreate
         - name: registration-dir
           hostPath:
-            path: /var/lib/kubelet/plugins_registry/
+            path: {{ k8s_worker_kubelet_conf_dir }}/plugins_registry/
             type: Directory
         - name: device-dir
           hostPath:
