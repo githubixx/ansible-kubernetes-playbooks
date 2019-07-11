@@ -5,13 +5,28 @@ This playbook is used in my blog post [Kubernetes the not so hard way with Ansib
 
 This playbook uses the Ansible's [k8s](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html) module. That means you need at least Ansible v2.6 as it was added with this version (the module was formerly known as `openshift_raw` or `k8s_raw` ;-) ). This modules uses the OpenShift Python client to perform CRUD operations on Kubernetes objects. That means you need to install `openshift` pip e.g.: `pip3 install openshift` (also see [requirements](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html#requirements).
 
-The first thing we need for the [Hetzner CSI driver](https://github.com/hetznercloud/csi-driver) is an API token. You can create it in the [Hetzner Cloud Console](https://console.hetzner.cloud/). For the token description/name you can use `hcloud-csi` as value e.g. If you have this token created we can define an Ansible variable accordingly. E.g. in `group_vars/all.yml` define
+The first thing we need for the [Hetzner CSI driver](https://github.com/hetznercloud/csi-driver) is an API token. You can create it in the [Hetzner Cloud Console](https://console.hetzner.cloud/). For the token description/name you can use `hcloud-csi` as value e.g. If you have this token created we can define an Ansible variables accordingly. 
+
+So in `group_vars/all.yml` e.g. you need to define a few variables:
 
 ```
+# The Hetzner API token
 hcloud_csi_token: "abcdefghijklmnopqrstuvwz"
+
+# The namespace where all CSI resources should be installed:
+hcloud_namespace: "kube-system"
+
+# The playbook installes a few resources like:
+# `Secret`, `StorageClass`, `ServiceAccount`, `ClusterRole`, 'ClusterRoleBinding', `StatefulSet`,`DaemonSet`
+# All this resources have names and the names will be prefixed
+# with the prefix defined here:
+hcloud_resource_prefix: "hcloud"
+
+# Directory where kubelet configuration is located
+k8s_worker_kubelet_conf_dir: "/var/lib/kubelet"
 ```
 
-To install all resources needed for [Hetzner CSI driver](https://github.com/hetznercloud/csi-driver) into Kubernetes `kube-system` namespace run (for further options read on):
+To install all resources needed for [Hetzner CSI driver](https://github.com/hetznercloud/csi-driver) run (for further options read on):
 
 ```
 ansible-playbook hetzner-csi.yml

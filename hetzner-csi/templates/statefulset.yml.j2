@@ -2,20 +2,20 @@
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
-  name: hcloud-csi-controller
-  namespace: kube-system
+  name: {{ hcloud_resource_prefix }}-csi-controller
+  namespace: {{ hcloud_namespace }}
 spec:
   selector:
     matchLabels:
-      app: hcloud-csi-controller
-  serviceName: hcloud-csi-controller
+      app: {{ hcloud_resource_prefix }}-controller
+  serviceName: {{ hcloud_resource_prefix }}-controller
   replicas: 1
   template:
     metadata:
       labels:
-        app: hcloud-csi-controller
+        app: {{ hcloud_resource_prefix }}-controller
     spec:
-      serviceAccount: hcloud-csi
+      serviceAccount: {{ hcloud_resource_prefix }}-csi
       containers:
         - name: csi-attacher
           image: quay.io/k8scsi/csi-attacher:v1.1.1
