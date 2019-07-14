@@ -17,10 +17,30 @@ hcloud_csi_token: "abcdefghijklmnopqrstuvwz"
 hcloud_namespace: "kube-system"
 
 # The playbook installes a few resources like:
-# `Secret`, `StorageClass`, `ServiceAccount`, `ClusterRole`, 'ClusterRoleBinding', `StatefulSet`,`DaemonSet`
+# Secret, StorageClass, ServiceAccount, ClusterRole,
+# ClusterRoleBinding, StatefulSet and DaemonSet
 # All this resources have names and the names will be prefixed
 # with the prefix defined here:
 hcloud_resource_prefix: "hcloud"
+
+# Make {{ hcloud_resource_prefix }}-volumes the default
+# storageClass. If you only have this storageClass then
+# just set it to "true". If you've other storageClass'es
+# already then "false" might be your choise.
+hcloud_is_default_class: "true"
+
+# The "volumeBindingMode" field controls when volume binding and
+# dynamic provisioning should occur. The default value is "Immediate".
+# The "Immediate" mode indicates that volume binding and dynamic
+# provisioning occurs once the "PersistentVolumeClaim" is created.
+# The "WaitForFirstConsumer" mode which will delay the binding and
+# provisioning of a "PersistentVolume" until a Pod using the
+# "PersistentVolumeClaim" is created. "PersistentVolumes" will be
+# selected or provisioned conforming to the topology that is specified
+# by the Pod’s scheduling constraints. These include, but are not
+# limited to, resource requirements, node selectors, pod affinity
+# and anti-affinity, and taints and tolerations.
+hcloud_volume_binding_mode: "WaitForFirstConsumer"
 
 # Directory where kubelet configuration is located
 k8s_worker_kubelet_conf_dir: "/var/lib/kubelet"
