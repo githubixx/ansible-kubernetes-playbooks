@@ -31,7 +31,7 @@ spec:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
         - name: csi-provisioner
-          image: quay.io/k8scsi/csi-provisioner:v1.2.0
+          image: quay.io/k8scsi/csi-provisioner:v1.3.0
           args:
             - --provisioner=csi.hetzner.cloud
             - --csi-address=/var/lib/csi/sockets/pluginproxy/csi.sock
