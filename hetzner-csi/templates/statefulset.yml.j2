@@ -18,7 +18,7 @@ spec:
       serviceAccount: {{ hcloud_resource_prefix }}-csi
       containers:
         - name: csi-attacher
-          image: quay.io/k8scsi/csi-attacher:v1.1.1
+          image: quay.io/k8scsi/csi-attacher:v1.2.0
           args:
             - --csi-address=/var/lib/csi/sockets/pluginproxy/csi.sock
             - --v=5
