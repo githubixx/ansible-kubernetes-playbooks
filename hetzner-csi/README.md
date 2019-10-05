@@ -44,6 +44,19 @@ hcloud_volume_binding_mode: "WaitForFirstConsumer"
 
 # Directory where kubelet configuration is located
 k8s_worker_kubelet_conf_dir: "/var/lib/kubelet"
+
+# Versions/tags for the various container images needed. Besides
+# the "csi_driver" you can find out about the recommened version
+# of the container to use for a specific Kubernetes release in the
+# CSI documentation: https://kubernetes-csi.github.io
+# DaemonSet:
+hcloud_csi_node_driver_registrar: "1.1.0"
+# StatefulSet:
+hcloud_csi_attacher: "1.2.0"
+hcloud_csi_provisioner: "1.3.0"
+hcloud_csi_cluster_driver_registrar: "1.0.1"
+# Hetzner CSI driver
+hcloud_csi_driver: "1.1.4"
 ```
 
 To install all resources needed for [Hetzner CSI driver](https://github.com/hetznercloud/csi-driver) run (for further options read on):

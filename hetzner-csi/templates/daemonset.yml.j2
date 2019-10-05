@@ -19,7 +19,7 @@ spec:
       hostNetwork: true
       containers:
         - name: csi-node-driver-registrar
-          image: quay.io/k8scsi/csi-node-driver-registrar:v1.1.0
+          image: quay.io/k8scsi/csi-node-driver-registrar:v{{ hcloud_csi_node_driver_registrar }}
           args:
             - --v=5
             - --csi-address=/csi/csi.sock
@@ -38,7 +38,7 @@ spec:
           securityContext:
             privileged: true
         - name: hcloud-csi-driver
-          image: hetznercloud/hcloud-csi-driver:1.1.4
+          image: hetznercloud/hcloud-csi-driver:{{ hcloud_csi_driver }}
           imagePullPolicy: Always
           env:
             - name: CSI_ENDPOINT
