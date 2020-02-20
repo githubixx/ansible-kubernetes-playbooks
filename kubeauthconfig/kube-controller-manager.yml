@@ -1,37 +1,79 @@
 ---
-- hosts: k8s_kubectl
+- hosts: localhost
 
   tasks:
+    - name: Create directory for kubeconfig files
+      file:
+        path: "{{ k8s_config_directory }}"
+        owner: "{{ k8s_config_owner }}"
+        group: "{{ k8s_config_group }}"
+        mode: "{{ k8s_config_directory_perm }}"
+        state: directory
+      tags:
+        - k8s-auth-config-kublet
+
     - name: Get IP address of first host in k8s_controller group and use as API server
       set_fact:
-        apiServer: |
-          {% set item = groups["k8s_controller"][0] %}
-          {{ hostvars[item]["ansible_"+hostvars[item]["k8s_interface"]].ipv4.address }}
+        apiServer: >-
+          {% set item = groups["k8s_controller"][0] %}{{ hostvars[item]["ansible_"+hostvars[item]["k8s_interface"]].ipv4.address }}
       tags:
         - kubernetes-ca
 
-    - name: Remove newline from API server IP address
-      set_fact:
-        apiServer: "{{apiServer |replace('\n', '')}}"
-      tags:
-        - k8s-auth-config-controller-manager
-
     - name: Generate a kubeconfig file for the kube-controller-manager service (set-cluster)
-      shell: "kubectl config set-cluster {{k8s_config_cluster_name}} --certificate-authority={{k8s_ca_conf_directory}}/ca-k8s-apiserver.pem --embed-certs=true --server=https://{{apiServer}}:{{k8s_apiserver_secure_port}} --kubeconfig={{k8s_config_directory}}/kube-controller-manager.kubeconfig"
+      shell: >
+        set -o errexit; \
+        kubectl config set-cluster {{ k8s_config_cluster_name }} \
+          --certificate-authority={{ k8s_ca_conf_directory }}/ca-k8s-apiserver.pem \
+          --embed-certs=true \
+          --server=https://{{ apiServer }}:{{ k8s_apiserver_secure_port }} \
+          --kubeconfig={{ k8s_config_directory }}/kube-controller-manager.kubeconfig
+      args:
+        executable: /bin/bash
       tags:
         - k8s-auth-config-controller-manager
 
     - name: Generate a kubeconfig file for the kube-controller-manager service (set-credentials)
-      shell: "kubectl config set-credentials system:kube-controller-manager --client-certificate={{k8s_ca_conf_directory}}/cert-k8s-controller-manager.pem --client-key={{k8s_ca_conf_directory}}/cert-k8s-controller-manager-key.pem --embed-certs=true --kubeconfig={{k8s_config_directory}}/kube-controller-manager.kubeconfig"
+      shell:
+        set -o errexit; \
+        kubectl config set-credentials system:kube-controller-manager \
+          --client-certificate={{ k8s_ca_conf_directory }}/cert-k8s-controller-manager.pem \
+          --client-key={{ k8s_ca_conf_directory }}/cert-k8s-controller-manager-key.pem \
+          --embed-certs=true \
+          --kubeconfig={{ k8s_config_directory }}/kube-controller-manager.kubeconfig
+      args:
+        executable: /bin/bash
       tags:
         - k8s-auth-config-controller-manager
 
     - name: Generate a kubeconfig file for the kube-controller-manager service (set-context)
-      shell: "kubectl config set-context default --cluster={{k8s_config_cluster_name}} --user=system:kube-controller-manager --kubeconfig={{k8s_config_directory}}/kube-controller-manager.kubeconfig"
+      shell:
+        set -o errexit; \
+        kubectl config set-context default \
+          --cluster={{ k8s_config_cluster_name }} \
+          --user=system:kube-controller-manager \
+          --kubeconfig={{ k8s_config_directory }}/kube-controller-manager.kubeconfig
+      args:
+        executable: /bin/bash
       tags:
         - k8s-auth-config-controller-manager
 
     - name: Set use-context
-      shell: "kubectl config use-context default --kubeconfig={{k8s_config_directory}}/kube-controller-manager.kubeconfig"
+      shell:
+        set -o errexit; \
+        kubectl config use-context default \
+          --kubeconfig={{ k8s_config_directory }}/kube-controller-manager.kubeconfig
+      args:
+        executable: /bin/bash
+      tags:
+        - k8s-auth-config-controller-manager
+
+    - name: Set file permissions
+      file:
+        path: "{{ k8s_config_directory }}/kube-controller-manager.kubeconfig"
+        owner: "{{ k8s_config_owner }}"
+        group: "{{ k8s_config_group }}"
+        mode: '{{ k8s_config_file_perm }}'
+        modification_time: "preserve"
+        access_time: "preserve"
       tags:
         - k8s-auth-config-controller-manager
