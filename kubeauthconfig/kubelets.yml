@@ -1,31 +1,83 @@
 ---
-- hosts: k8s_kubectl
+- hosts: localhost
 
   tasks:
+    - name: Create directory for kubeconfig files
+      file:
+        path: "{{ k8s_config_directory }}"
+        owner: "{{ k8s_config_owner }}"
+        group: "{{ k8s_config_group }}"
+        mode: "{{ k8s_config_directory_perm }}"
+        state: directory
+      tags:
+        - k8s-auth-config-kublet
+
     - name: Generate a kubeconfig file for each worker node (set-cluster)
-      shell: "kubectl config set-cluster {{k8s_config_cluster_name}} --certificate-authority={{k8s_ca_conf_directory}}/ca-k8s-apiserver.pem --embed-certs=true --server=https://{{hostvars[groups['k8s_controller'][0]]['ansible_'+hostvars[item]['k8s_interface']].ipv4.address}}:{{k8s_apiserver_secure_port}} --kubeconfig={{k8s_config_directory}}/{{item}}.kubeconfig"
+      shell: >
+        set -o errexit; \
+        kubectl config set-cluster {{ k8s_config_cluster_name }} \
+          --certificate-authority={{ k8s_ca_conf_directory }}/ca-k8s-apiserver.pem \
+          --embed-certs=true \
+          --server=https://{{ hostvars[groups['k8s_controller'][0]]['ansible_'+hostvars[item]['k8s_interface']].ipv4.address }}:{{ k8s_apiserver_secure_port }} \
+          --kubeconfig={{ k8s_config_directory }}/{{ item }}.kubeconfig
+      args:
+        executable: /bin/bash
       with_inventory_hostnames:
         - k8s_worker
       tags:
         - k8s-auth-config-kubelet
 
     - name: Generate a kubeconfig file for each worker node (set-credentials)
-      shell: "kubectl config set-credentials system:node:{{hostvars[item]['ansible_hostname']}} --client-certificate={{k8s_ca_conf_directory}}/cert-{{item}}.pem --client-key={{k8s_ca_conf_directory}}/cert-{{item}}-key.pem --embed-certs=true --kubeconfig={{k8s_config_directory}}/{{item}}.kubeconfig"
+      shell: >
+        set -o errexit; \
+        kubectl config set-credentials system:node:{{hostvars[item]['ansible_hostname']}} \
+          --client-certificate={{ k8s_ca_conf_directory }}/cert-{{ item }}.pem \
+          --client-key={{ k8s_ca_conf_directory }}/cert-{{ item }}-key.pem \
+          --embed-certs=true \
+          --kubeconfig={{ k8s_config_directory }}/{{ item }}.kubeconfig
+      args:
+        executable: /bin/bash
       with_inventory_hostnames:
         - k8s_worker
       tags:
         - k8s-auth-config-kubelet
 
     - name: Generate a kubeconfig file for each worker node (set-context)
-      shell: "kubectl config set-context default --cluster={{k8s_config_cluster_name}} --user=system:node:{{hostvars[item]['ansible_hostname']}} --kubeconfig={{k8s_config_directory}}/{{item}}.kubeconfig"
+      shell: >
+        set -o errexit; \
+        kubectl config set-context default \
+          --cluster={{ k8s_config_cluster_name }} \
+          --user=system:node:{{ hostvars[item]['ansible_hostname'] }} \
+          --kubeconfig={{ k8s_config_directory }}/{{ item }}.kubeconfig
+      args:
+        executable: /bin/bash
       with_inventory_hostnames:
         - k8s_worker
       tags:
         - k8s-auth-config-kubelet
 
     - name: Set use-context
-      shell: "kubectl config use-context default --kubeconfig={{k8s_config_directory}}/{{item}}.kubeconfig"
+      shell: >
+        set -o errexit; \
+        kubectl config use-context default \
+          --kubeconfig={{ k8s_config_directory }}/{{ item }}.kubeconfig
+      args:
+        executable: /bin/bash
       with_inventory_hostnames:
         - k8s_worker
       tags:
         - k8s-auth-config-kubelet
+
+    - name: Set file permissions
+      file:
+        path: "{{ k8s_config_directory }}/{{ item }}.kubeconfig"
+        owner: "{{ k8s_config_owner }}"
+        group: "{{ k8s_config_group }}"
+        mode: '{{ k8s_config_file_perm }}'
+        modification_time: "preserve"
+        access_time: "preserve"
+      with_inventory_hostnames:
+        - k8s_worker
+      tags:
+        - k8s-auth-config-kubelet
+
