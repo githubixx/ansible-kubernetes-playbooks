@@ -47,6 +47,14 @@
   tags:
     - delete-storageclass
 
+- name: Delete CSIDriver CRD
+  k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/csidriver-crd.yml.j2') | from_yaml }}"
+  delegate_to: localhost
+  tags:
+    - delete-csidriver-crd
+
 - name: Delete hcloud-csi secret
   k8s:
     state: absent
