@@ -49,12 +49,15 @@ k8s_worker_kubelet_conf_dir: "/var/lib/kubelet"
 # the "csi_driver" you can find out about the recommened version
 # of the container to use for a specific Kubernetes release in the
 # CSI documentation: https://kubernetes-csi.github.io
+
 # DaemonSet:
 hcloud_csi_node_driver_registrar: "1.1.0"
+
 # StatefulSet:
-hcloud_csi_attacher: "1.2.0"
-hcloud_csi_provisioner: "1.3.0"
-hcloud_csi_cluster_driver_registrar: "1.0.1"
+hcloud_csi_attacher: "2.1.0"
+hcloud_csi_provisioner: "1.5.0"
+hcloud_csi_resizer: "0.3.0"
+
 # Hetzner CSI driver
 hcloud_csi_driver: "1.1.4"
 ```
@@ -88,3 +91,8 @@ To only delete a specific resource you can also use tags e.g.:
 ```
 ansible-playbook -e delete=true --tags=delete-daemonset hetzner-csi.yml
 ```
+
+Upgrading
+---------
+
+I've written a [blog post](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-csi-upgrade-notes/) how to upgrade CSI resources.

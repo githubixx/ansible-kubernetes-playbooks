@@ -8,3 +8,4 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "{{ hcloud_is_default_class }}"
 provisioner: csi.hetzner.cloud
 volumeBindingMode: {{ hcloud_volume_binding_mode }}
+allowVolumeExpansion: true

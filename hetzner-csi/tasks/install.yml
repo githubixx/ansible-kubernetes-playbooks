@@ -7,6 +7,14 @@
   tags:
     - install-secret
 
+- name: Install CSIDriver CRD
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/csidriver-crd.yml.j2') | from_yaml }}"
+  delegate_to: localhost
+  tags:
+    - install-csidriver-crd
+
 - name: Install StorageClass
   k8s:
     state: present
