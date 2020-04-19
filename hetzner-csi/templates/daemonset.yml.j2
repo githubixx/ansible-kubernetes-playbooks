@@ -16,7 +16,6 @@ spec:
         app: {{ hcloud_resource_prefix }}-csi
     spec:
       serviceAccount: {{ hcloud_resource_prefix }}-csi
-      hostNetwork: true
       containers:
         - name: csi-node-driver-registrar
           image: quay.io/k8scsi/csi-node-driver-registrar:v{{ hcloud_csi_node_driver_registrar }}
@@ -43,6 +42,8 @@ spec:
           env:
             - name: CSI_ENDPOINT
               value: unix:///csi/csi.sock
+            - name: METRICS_ENDPOINT
+              value: 0.0.0.0:9189
             - name: HCLOUD_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -58,6 +59,9 @@ spec:
               mountPath: /dev
           securityContext:
             privileged: true
+          ports:
+            - containerPort: 9189
+              name: metrics
       volumes:
         - name: kubelet-dir
           hostPath:
