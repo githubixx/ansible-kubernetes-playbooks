@@ -95,3 +95,4 @@ ansible-playbook -e delete=true --tags=delete-daemonset hetzner-csi.yml
 Upgrading
 ---------
 
+I've written a [blog post](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-csi-upgrade-notes/) how to upgrade CSI resources.
