@@ -21,10 +21,10 @@ The following CoreDNS plugins are used:
 [errors](https://coredns.io/plugins/errors/)  
 [health](https://coredns.io/plugins/health/)  
 [prometheus](https://coredns.io/plugins/metrics/)  
-[forward](https://coredns.io/plugins/forward/)
+[forward](https://coredns.io/plugins/forward/)  
 [cache](https://coredns.io/plugins/cache/)  
 [reload](https://coredns.io/plugins/reload/)  
-[loadbalance](https://coredns.io/plugins/loadbalance/)
+[loadbalance](https://coredns.io/plugins/loadbalance/)  
 [ready](https://coredns.io/plugins/ready/)
 
 To install all parts needed for CoreDNS into Kubernetes `kube-system` namespace run (for further options read on):
