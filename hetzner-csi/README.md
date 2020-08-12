@@ -51,7 +51,7 @@ k8s_worker_kubelet_conf_dir: "/var/lib/kubelet"
 # CSI documentation: https://kubernetes-csi.github.io
 
 # DaemonSet:
-hcloud_csi_node_driver_registrar: "1.1.0"
+hcloud_csi_node_driver_registrar: "1.3.0"
 
 # StatefulSet:
 hcloud_csi_attacher: "2.1.0"
