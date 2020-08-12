@@ -66,7 +66,7 @@
 - name: Install Service for controller metrics
   k8s:
     state: present
-    definition: "{{ lookup('template', 'templates/service-hcloud-csi-controller-metrics.yml.j2') | from_yaml }}"
+    definition: "{{ lookup('template', 'templates/service-controller-metrics.yml.j2') | from_yaml }}"
   delegate_to: localhost
   tags:
     - install-service-controller-metrics
