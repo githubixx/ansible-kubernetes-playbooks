@@ -57,6 +57,7 @@ hcloud_csi_node_driver_registrar: "1.3.0"
 hcloud_csi_attacher: "2.2.0"
 hcloud_csi_provisioner: "1.6.0"
 hcloud_csi_resizer: "0.5.0"
+hcloud_csi_livenessprobe: "1.1.0"
 
 # Hetzner CSI driver
 hcloud_csi_driver: "1.1.4"
