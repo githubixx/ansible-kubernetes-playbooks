@@ -77,11 +77,30 @@ spec:
           ports:
             - containerPort: 9189
               name: metrics
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 2
           securityContext:
             privileged: true
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
+        - name: liveness-probe
+          imagePullPolicy: Always
+          image: quay.io/k8scsi/livenessprobe:v{{ hcloud_csi_livenessprobe }}
+          args:
+            - --csi-address=/var/lib/csi/sockets/pluginproxy/csi.sock
+          volumeMounts:
+            - mountPath: /var/lib/csi/sockets/pluginproxy/
+              name: socket-dir
       volumes:
         - name: socket-dir
           emptyDir: {}
