@@ -62,3 +62,20 @@
   delegate_to: localhost
   tags:
     - delete-secret
+
+- name: Delete Service for controller metrics
+  k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/service-controller-metrics.yml.j2') | from_yaml }}"
+  delegate_to: localhost
+  tags:
+    - delete-service-controller-metrics
+
+- name: Delete Service for node metrics
+  k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/service-node-metrics.yml.j2') | from_yaml }}"
+  delegate_to: localhost
+  tags:
+    - delete-service-node-metrics
+

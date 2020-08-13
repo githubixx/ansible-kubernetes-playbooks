@@ -62,3 +62,20 @@
   delegate_to: localhost
   tags:
     - install-daemonset
+
+- name: Install Service for controller metrics
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/service-controller-metrics.yml.j2') | from_yaml }}"
+  delegate_to: localhost
+  tags:
+    - install-service-controller-metrics
+
+- name: Install Service for node metrics
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/service-node-metrics.yml.j2') | from_yaml }}"
+  delegate_to: localhost
+  tags:
+    - install-service-node-metrics
+

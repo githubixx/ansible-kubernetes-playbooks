@@ -15,6 +15,13 @@ spec:
       labels:
         app: {{ hcloud_resource_prefix }}-csi
     spec:
+      tolerations:
+        - effect: NoExecute
+          operator: Exists
+        - effect: NoSchedule
+          operator: Exists
+        - key: CriticalAddonsOnly
+          operator: Exists
       serviceAccount: {{ hcloud_resource_prefix }}-csi
       containers:
         - name: csi-node-driver-registrar
@@ -62,6 +69,25 @@ spec:
           ports:
             - containerPort: 9189
               name: metrics
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 2
+        - name: liveness-probe
+          imagePullPolicy: Always
+          image: quay.io/k8scsi/livenessprobe:v{{ hcloud_csi_livenessprobe }}
+          args:
+            - --csi-address=/csi/csi.sock
+          volumeMounts:
+            - mountPath: /csi
+              name: plugin-dir
       volumes:
         - name: kubelet-dir
           hostPath:
