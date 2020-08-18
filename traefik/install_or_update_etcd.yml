@@ -1,4 +1,21 @@
 ---
+- hosts: k8s_etcd
+  remote_user: root
+
+  tasks:
+    - name: Copy Traefik client certificate files for etcd
+      copy:
+        src: "{{ k8s_ca_conf_directory }}/{{ item }}"
+        dest: "{{ k8s_conf_dir }}/{{ item }}"
+        mode: '0444'
+        owner: root
+        group: root
+      become: yes
+      become_method: sudo
+      loop:
+        - cert-traefik.pem
+        - cert-traefik-key.pem
+
 - hosts: k8s_kubectl
 
   tasks:
@@ -7,8 +24,8 @@
         ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl get /traefik/acme/account/lock \
           --endpoints=https://127.0.0.1:{{etcd_client_port}} \
           --cacert={{k8s_conf_dir}}/ca-etcd.pem \
-          --cert={{k8s_conf_dir}}/cert-etcd.pem \
-          --key={{k8s_conf_dir}}/cert-etcd-key.pem
+          --cert={{k8s_conf_dir}}/cert-traefik.pem \
+          --key={{k8s_conf_dir}}/cert-traefik-key.pem
       register: lock_configured
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
@@ -20,8 +37,8 @@
         ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl put /traefik/acme/account/lock '' \
           --endpoints=https://127.0.0.1:{{etcd_client_port}} \
           --cacert={{k8s_conf_dir}}/ca-etcd.pem \
-          --cert={{k8s_conf_dir}}/cert-etcd.pem \
-          --key={{k8s_conf_dir}}/cert-etcd-key.pem
+          --cert={{k8s_conf_dir}}/cert-traefik.pem \
+          --key={{k8s_conf_dir}}/cert-traefik-key.pem
       when: lock_configured.stdout == ""
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
@@ -33,8 +50,8 @@
         ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl get /traefik/acme/account/object \
           --endpoints=https://127.0.0.1:{{etcd_client_port}} \
           --cacert={{k8s_conf_dir}}/ca-etcd.pem \
-          --cert={{k8s_conf_dir}}/cert-etcd.pem \
-          --key={{k8s_conf_dir}}/cert-etcd-key.pem
+          --cert={{k8s_conf_dir}}/cert-traefik.pem \
+          --key={{k8s_conf_dir}}/cert-traefik-key.pem
       register: object_configured
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
@@ -46,8 +63,8 @@
         ETCDCTL_API=3 sudo -E {{etcd_bin_dir}}/etcdctl put /traefik/acme/account/object '' \
           --endpoints=https://127.0.0.1:{{etcd_client_port}} \
           --cacert={{k8s_conf_dir}}/ca-etcd.pem \
-          --cert={{k8s_conf_dir}}/cert-etcd.pem \
-          --key={{k8s_conf_dir}}/cert-etcd-key.pem
+          --cert={{k8s_conf_dir}}/cert-traefik.pem \
+          --key={{k8s_conf_dir}}/cert-traefik-key.pem
       when: object_configured.stdout == ""
       run_once: true
       delegate_to: "{{groups.k8s_etcd|first}}"
@@ -58,12 +75,14 @@
       shell: "kubectl get secret --namespace=kube-system traefik-etcd"
       register: kubectl
       failed_when: "not (('not found' in kubectl.stderr) or ('' in kubectl.stdout))"
+      delegate_to: 127.0.0.1
       tags:
         - traefik-secret
 
     - name: Deploy secret (if needed)
-      command: "kubectl create secret generic traefik-etcd --from-file={{k8s_ca_conf_directory}}/ca-etcd.pem --from-file={{k8s_ca_conf_directory}}/cert-etcd.pem --from-file={{k8s_ca_conf_directory}}/cert-etcd-key.pem --namespace=kube-system"
+      command: "kubectl create secret generic traefik-etcd --from-file={{k8s_ca_conf_directory}}/ca-etcd.pem --from-file={{k8s_ca_conf_directory}}/cert-traefik.pem --from-file={{k8s_ca_conf_directory}}/cert-traefik-key.pem --namespace=kube-system"
       when: kubectl.rc == 1
+      delegate_to: 127.0.0.1
       tags:
         - traefik-secret
 
@@ -72,11 +91,13 @@
         content: "{{traefik_clusterrole}}"
         dest: "/tmp/traefik_clusterrole.yaml"
         mode: 0600
+      delegate_to: 127.0.0.1
       tags:
         - traefik-clusterrole
 
     - name: Deploy Traefik ClusterRole
       command: "kubectl apply -f /tmp/traefik_clusterrole.yaml"
+      delegate_to: 127.0.0.1
       tags:
         - traefik-clusterrole
     
@@ -84,6 +105,7 @@
       file:
         path: "/tmp/traefik_clusterrole.yaml"
         state: absent
+      delegate_to: 127.0.0.1
       tags:
         - traefik-clusterrole
 
@@ -92,11 +114,13 @@
         content: "{{traefik_clusterrolebinding}}"
         dest: "/tmp/traefik_clusterrolebinding.yaml"
         mode: 0600
+      delegate_to: 127.0.0.1
       tags:
         - traefik-clusterrolebinding
 
     - name: Deploy Traefik ClusterRoleBinding
       command: "kubectl apply -f /tmp/traefik_clusterrolebinding.yaml"
+      delegate_to: 127.0.0.1
       tags:
         - traefik-clusterrolebinding
 
@@ -104,6 +128,7 @@
       file:
         path: "/tmp/traefik_clusterrolebinding.yaml"
         state: absent
+      delegate_to: 127.0.0.1
       tags:
         - traefik-clusterrolebinding
 
@@ -112,11 +137,13 @@
         content: "{{traefik_serviceaccount}}"
         dest: "/tmp/traefik_serviceaccount.yaml"
         mode: 0600
+      delegate_to: 127.0.0.1
       tags:
         - traefik-serviceaccount
 
     - name: Deploy Traefik ServiceAccount
       command: "kubectl apply -f /tmp/traefik_serviceaccount.yaml"
+      delegate_to: 127.0.0.1
       tags:
         - traefik-serviceaccount
 
@@ -124,6 +151,7 @@
       file:
         path: "/tmp/traefik_serviceaccount.yaml"
         state: absent
+      delegate_to: 127.0.0.1
       tags:
         - traefik-serviceaccount
 
@@ -132,11 +160,13 @@
         content: "{{traefik_daemonset}}"
         dest: "/tmp/traefik_daemonset.yaml"
         mode: 0600
+      delegate_to: 127.0.0.1
       tags:
         - traefik-daemonset
 
     - name: Deploy Traefik DaemonSet
       command: "kubectl apply -f /tmp/traefik_daemonset.yaml"
+      delegate_to: 127.0.0.1
       tags:
         - traefik-daemonset
 
@@ -144,5 +174,19 @@
       file:
         path: "/tmp/traefik_daemonset.yaml"
         state: absent
+      delegate_to: 127.0.0.1
       tags:
         - traefik-daemonset
+
+- hosts: k8s_etcd
+  remote_user: root
+
+  tasks:
+    - name: Remove Traefik client certificates
+      file:
+        path: "{{ k8s_conf_dir }}/{{ item }}"
+        state: absent
+      loop:
+        - cert-traefik.pem
+        - cert-traefik-key.pem
+
