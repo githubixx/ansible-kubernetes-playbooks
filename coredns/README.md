@@ -6,6 +6,7 @@ This playbook is used in my blog post [Kubernetes the not so hard way with Ansib
 This playbook uses the Ansible's [k8s](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html) module. That means you need at least Ansible v2.6 as it was added with this version (the module was formerly known as `openshift_raw` or `k8s_raw` ;-) ). This modules uses the OpenShift Python client to perform CRUD operations on Kubernetes objects. That means you need to install `openshift` pip e.g.: `pip3 install openshift` (also see [requirements](https://docs.ansible.com/ansible/2.6/modules/k8s_module.html#requirements).
 
 Before you install and use CoreDNS for your Kubernetes cluster you may find this links useful:  
+[CoreDNS version in Kubernetes](https://github.com/coredns/deployment/blob/master/kubernetes/CoreDNS-k8s_version.md)
 [CoreDNS GA for Kubernetes Cluster DNS](https://kubernetes.io/blog/2018/07/10/coredns-ga-for-kubernetes-cluster-dns/)  
 [Customizing DNS Service](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/)  
 [Migration from kube-dns to CoreDNS](https://coredns.io/2018/05/21/migration-from-kube-dns-to-coredns/)  
