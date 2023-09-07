@@ -21,6 +21,7 @@ spec:
       labels:
         k8s-app: kube-dns
     spec:
+      priorityClassName: system-cluster-critical
       serviceAccountName: coredns
       tolerations:
         - key: node-role.kubernetes.io/master
@@ -29,7 +30,7 @@ spec:
           operator: "Exists"
       containers:
       - name: coredns
-        image: coredns/coredns:1.8.4
+        image: coredns/coredns:1.10.1
         imagePullPolicy: IfNotPresent
         resources:
           limits:

@@ -1,6 +1,6 @@
 ---
 - name: Run CoreDNS playbook
-  hosts: k8s_kubectl
+  hosts: localhost
   tasks:
     - name: Set default action
       set_fact:

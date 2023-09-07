@@ -11,6 +11,7 @@ metadata:
     k8s-app: kube-dns
     kubernetes.io/cluster-service: "true"
     kubernetes.io/name: "CoreDNS"
+    app.kubernetes.io/name: coredns
 spec:
   selector:
     k8s-app: kube-dns
@@ -21,4 +22,7 @@ spec:
       protocol: UDP
     - name: dnstcp
       port: 53
+      protocol: TCP
+    - name: metrics
+      port: 9153
       protocol: TCP
